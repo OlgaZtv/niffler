@@ -39,10 +39,10 @@ public class PostgresJdbcUsersDAO implements UsersDAO {
 
     @Override
     public void updateUser(UsersEntity user) {
-        try (final Connection con = ds.getConnection()) {
+        try (final Connection con = ds.getConnection();
+             Statement statement = con.createStatement()) {
             String sql = "UPDATE users SET currency = '" + user.getCurrency() +
                     "' WHERE username = '" + user.getUsername() + "';";
-             Statement statement = con.createStatement();
             statement.executeUpdate(sql);
         } catch (SQLException e) {
             LOG.error("Error while database operation", e);
@@ -52,10 +52,10 @@ public class PostgresJdbcUsersDAO implements UsersDAO {
 
     @Override
     public void remove(UsersEntity user) {
-        try ( final Connection connection = ds.getConnection()) {
-    String sql = "DELETE FROM users WHERE username = ' " + user.getUsername() + "';";
-    Statement statement = connection.createStatement();
-    statement.executeUpdate(sql);
+        try (final Connection connection = ds.getConnection();
+             Statement statement = connection.createStatement()) {
+            String sql = "DELETE FROM users WHERE username = '" + user.getUsername() + "';";
+            statement.executeUpdate(sql);
         } catch (SQLException e) {
             LOG.error("Error while database operation", e);
             throw new RuntimeException(e);
