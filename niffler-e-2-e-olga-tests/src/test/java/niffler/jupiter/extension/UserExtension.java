@@ -1,10 +1,6 @@
 package niffler.jupiter.extension;
 
-<<<<<<<< HEAD:niffler-e-2-e-olga-tests/src/test/java/niffler/jupiter/UserExtension.java
-========
-import io.qameta.allure.AllureId;
 import niffler.jupiter.user.User;
->>>>>>>> master:niffler-e-2-e-olga-tests/src/test/java/niffler/jupiter/extension/UsersExtension.java
 import niffler.model.UserModel;
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
