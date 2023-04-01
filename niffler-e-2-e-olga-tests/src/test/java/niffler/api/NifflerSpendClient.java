@@ -1,5 +1,6 @@
 package niffler.api;
 
+import niffler.model.CategoryJson;
 import niffler.model.SpendJson;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
@@ -11,14 +12,20 @@ public class NifflerSpendClient {
             .build();
 
     private Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(NifflerSpendService.nifflerSpendUri)
+            .baseUrl(NifflerSpendApi.nifflerSpendUri)
             .addConverterFactory(JacksonConverterFactory.create())
             .build();
 
-    private NifflerSpendService nifflerSpendService = retrofit.create(NifflerSpendService.class);
+    private NifflerSpendApi nifflerSpendApi = retrofit.create(NifflerSpendApi.class);
 
     public SpendJson createSpend(SpendJson spend) throws Exception {
-        return nifflerSpendService.addSpend(spend).execute().body();
+        return nifflerSpendApi.addSpend(spend).execute().body();
+    }
+
+    public CategoryJson createCategory(CategoryJson category) throws Exception {
+        return nifflerSpendApi.addCategory(category)
+                .execute()
+                .body();
     }
 
 }

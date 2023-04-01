@@ -2,6 +2,7 @@ package niffler.data.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import niffler.model.CurrencyValues;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -24,7 +25,8 @@ public class UsersEntity {
     private String username;
 
     @Column(name = "currency")
-    private String currency;
+    @Enumerated(EnumType.STRING)
+    private CurrencyValues currency;
 
     @Column(name = "firstname")
     private String firstname;
@@ -42,6 +44,8 @@ public class UsersEntity {
             inverseJoinColumns = @JoinColumn(name = "friend_id"))
     @Builder.Default
     private Set<UsersEntity> friends = new HashSet<>();
+
+
 
     public void addFriends(UsersEntity... friends) {
         this.friends.addAll(Arrays.asList(friends));

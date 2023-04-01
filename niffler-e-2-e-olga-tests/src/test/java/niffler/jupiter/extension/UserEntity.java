@@ -1,6 +1,6 @@
 package niffler.jupiter.extension;
 
-import niffler.model.Currency;
+import niffler.model.CurrencyValues;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.lang.annotation.ElementType;
@@ -14,5 +14,5 @@ import java.lang.annotation.Target;
 public @interface UserEntity {
     String username();
 
-    Currency currency();
+    CurrencyValues currency();
 }

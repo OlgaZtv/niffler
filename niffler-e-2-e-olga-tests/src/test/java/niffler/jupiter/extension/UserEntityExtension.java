@@ -3,6 +3,7 @@ package niffler.jupiter.extension;
 import niffler.data.dao.PostgresSpringJdbcUsersDAO;
 import niffler.data.dao.UsersDAO;
 import niffler.data.entity.UsersEntity;
+import niffler.model.CurrencyValues;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -31,7 +32,7 @@ public class UserEntityExtension implements BeforeEachCallback, AfterEachCallbac
             UserEntity userEntityFields = field.getAnnotation(UserEntity.class);
             UsersEntity originalUsersEntity = usersDAO.getByUsername(userEntityFields.username());
             UsersEntity testedUsersEntity = usersDAO.getByUsername(userEntityFields.username());
-            testedUsersEntity.setCurrency(userEntityFields.currency().toString());
+            testedUsersEntity.setCurrency(CurrencyValues.valueOf(userEntityFields.currency().toString()));
             usersDAO.updateUser(testedUsersEntity);
             field.setAccessible(true);
             field.set(testInstance, testedUsersEntity);
