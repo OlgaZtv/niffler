@@ -6,6 +6,7 @@ import niffler.data.repository.CategoryRepository;
 import niffler.data.repository.SpendRepository;
 import niffler.model.CurrencyValues;
 import niffler.model.SpendJson;
+import niffler.model.StatisticByCategoryJson;
 import niffler.model.StatisticJson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,18 +18,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.time.Instant;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -215,4 +210,68 @@ class SpendServiceTest {
         cal.add(selector, days);
         return cal.getTime();
     }
+
+    void createStatisticByCategoryJsonListTest() {
+        Date dateTo = new Date();
+        CurrencyValues statisticCurrency = CurrencyValues.RUB;
+        CurrencyValues userCurrency = CurrencyValues.USD;
+        StatisticJson defaultStatisticJson = spendService.createDefaultStatisticJson(statisticCurrency, userCurrency, dateTo);
+        Map<String, List<SpendJson>> spendsByCategory = spendService.bindSpendsToCategories(defaultStatisticJson, statisticCurrency, userCurrency, List.of(
+                secondSpend, firstSpend, thirdSpend
+        ));
+        List<StatisticByCategoryJson> statisticByCategories = spendService.createStatisticByCategoryJsonList(statisticCurrency, userCurrency, spendsByCategory);
+
+        Map<String, Double> expectedTotalByCategory = createExpectedTotalByCategory();
+        Map<String, Double> expectedTotalInUserCurrencyByCategory = createExpectedTotalInUserCurrencyByCategory();
+
+        assertExpectedTotals(expectedTotalByCategory, expectedTotalInUserCurrencyByCategory, statisticByCategories);
+    }
+
+    private Map<String, Double> createExpectedTotalByCategory() {
+        Map<String, Double> expectedTotalByCategory = new HashMap<>();
+        expectedTotalByCategory.put("Рыбалка", 12000.0);
+        expectedTotalByCategory.put("Бар", 1350.0);
+        return expectedTotalByCategory;
+    }
+
+    private Map<String, Double> createExpectedTotalInUserCurrencyByCategory() {
+        Map<String, Double> expectedTotalInUserCurrencyByCategory = new HashMap<>();
+        expectedTotalInUserCurrencyByCategory.put("Рыбалка", 160.0);
+        expectedTotalInUserCurrencyByCategory.put("Бар", 18.0);
+        return expectedTotalInUserCurrencyByCategory;
+    }
+
+    private void assertExpectedTotals(Map<String, Double> expectedTotalByCategory, Map<String, Double> expectedTotalInUserCurrencyByCategory, List<StatisticByCategoryJson> statisticByCategories) {
+        assertEquals(expectedTotalByCategory.size(), statisticByCategories.size());
+        for (StatisticByCategoryJson statisticByCategory : statisticByCategories) {
+            String category = statisticByCategory.getCategory();
+            assertEquals(expectedTotalByCategory.get(category), statisticByCategory.getTotal());
+            assertEquals(expectedTotalInUserCurrencyByCategory.get(category), statisticByCategory.getTotalInUserDefaultCurrency());
+        }
+    }
+
+    @Test
+    void addRemainingEmptySpendCategoriesToStatisticTest() {
+        Date dateTo = new Date();
+        CurrencyValues statisticCurrency = CurrencyValues.RUB;
+        CurrencyValues userCurrency = CurrencyValues.USD;
+        StatisticJson defaultStatisticJson = spendService.createDefaultStatisticJson(statisticCurrency, userCurrency, dateTo);
+        Map<String, List<SpendJson>> spendsByCategory = spendService.bindSpendsToCategories(defaultStatisticJson, statisticCurrency, userCurrency, List.of(
+                secondSpend, firstSpend, thirdSpend
+        ));
+        List<StatisticByCategoryJson> statisticByCategories = spendService.createStatisticByCategoryJsonList(statisticCurrency, userCurrency, spendsByCategory);
+
+        List<StatisticByCategoryJson> statisticWithEmptyCategories = new ArrayList<>();
+        spendService.addRemainingEmptySpendCategoriesToStatistic("dima", spendsByCategory, statisticWithEmptyCategories);
+        spendService.addRemainingEmptySpendCategoriesToStatistic("dima", spendsByCategory, statisticByCategories);
+
+        assertEquals(1, statisticWithEmptyCategories.size());
+        assertEquals("Магазин", statisticWithEmptyCategories.get(0).getCategory());
+        assertEquals(0, statisticWithEmptyCategories.get(0).getSpends().size());
+        assertEquals(0.0, statisticWithEmptyCategories.get(0).getTotal(), 0.0);
+        assertEquals(0.0, statisticWithEmptyCategories.get(0).getTotalInUserDefaultCurrency(), 0.0);
+
+        assertEquals(3, statisticByCategories.size());
+    }
+
 }

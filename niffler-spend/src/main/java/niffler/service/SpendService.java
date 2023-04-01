@@ -134,37 +134,8 @@ public class SpendService {
         StatisticJson statistic = createDefaultStatisticJson(statisticCurrency, userCurrency, dateTo);
         Map<String, List<SpendJson>> spendsByCategory = bindSpendsToCategories(statistic, statisticCurrency, userCurrency, spendEntities);
 
-        List<StatisticByCategoryJson> sbcjResult = new ArrayList<>();
-        for (Map.Entry<String, List<SpendJson>> entry : spendsByCategory.entrySet()) {
-            StatisticByCategoryJson sbcj = new StatisticByCategoryJson();
-            sbcj.setCategory(entry.getKey());
-            sbcj.setSpends(entry.getValue());
-            sbcj.setTotal(entry.getValue().stream()
-                    .map(SpendJson::getAmount)
-                    .map(BigDecimal::valueOf)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add).doubleValue());
-            sbcj.setTotalInUserDefaultCurrency(
-                    grpcCurrencyClient.calculate(
-                            sbcj.getTotal(),
-                            statisticCurrency,
-                            userCurrency
-                    ).doubleValue()
-            );
-            sbcjResult.add(sbcj);
-        }
-
-        categoryRepository.findAllByUsername(username).stream()
-                .filter(c -> !spendsByCategory.containsKey(c.getCategory()))
-                .map(c -> {
-                    StatisticByCategoryJson sbcj = new StatisticByCategoryJson();
-                    sbcj.setCategory(c.getCategory());
-                    sbcj.setSpends(Collections.emptyList());
-                    sbcj.setTotal(0.0);
-                    sbcj.setTotalInUserDefaultCurrency(0.0);
-                    return sbcj;
-                })
-                .forEach(sbcjResult::add);
-
+        List<StatisticByCategoryJson> sbcjResult = createStatisticByCategoryJsonList(statisticCurrency, userCurrency, spendsByCategory);
+        addRemainingEmptySpendCategoriesToStatistic(username, spendsByCategory, sbcjResult);
         sbcjResult.sort(Comparator.comparing(StatisticByCategoryJson::getCategory));
         statistic.setCategoryStatistics(sbcjResult);
         return statistic;
@@ -223,6 +194,45 @@ public class SpendService {
                         HashMap::new,
                         Collectors.toCollection(ArrayList::new)
                 ));
+    }
+
+    @Nonnull
+    List<StatisticByCategoryJson> createStatisticByCategoryJsonList(@Nonnull CurrencyValues statisticCurrency,
+                                                                    @Nonnull CurrencyValues userCurrency,
+                                                                    @Nonnull Map<String, List<SpendJson>> spendsByCategory) {
+        List<StatisticByCategoryJson> sbcjResult = new ArrayList<>();
+        for (Map.Entry<String, List<SpendJson>> entry : spendsByCategory.entrySet()) {
+            StatisticByCategoryJson sbcj = new StatisticByCategoryJson();
+            sbcj.setCategory(entry.getKey());
+            sbcj.setSpends(entry.getValue());
+            sbcj.setTotal(entry.getValue().stream()
+                    .map(SpendJson::getAmount)
+                    .map(BigDecimal::valueOf)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add).doubleValue());
+            sbcj.setTotalInUserDefaultCurrency(
+                    grpcCurrencyClient.calculate(
+                            sbcj.getTotal(),
+                            statisticCurrency,
+                            userCurrency
+                    ).doubleValue()
+            );
+            sbcjResult.add(sbcj);
+        }
+        return sbcjResult;
+    }
+
+    void addRemainingEmptySpendCategoriesToStatistic(String username, Map<String, List<SpendJson>> spendsByCategory, List<StatisticByCategoryJson> sbcjResult) {
+        categoryRepository.findAllByUsername(username).stream()
+                .filter(c -> !spendsByCategory.containsKey(c.getCategory()))
+                .map(c -> {
+                    StatisticByCategoryJson sbcj = new StatisticByCategoryJson();
+                    sbcj.setCategory(c.getCategory());
+                    sbcj.setSpends(Collections.emptyList());
+                    sbcj.setTotal(0.0);
+                    sbcj.setTotalInUserDefaultCurrency(0.0);
+                    return sbcj;
+                })
+                .forEach(sbcjResult::add);
     }
 
     @Nonnull
