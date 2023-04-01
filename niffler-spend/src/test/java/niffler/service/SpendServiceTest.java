@@ -211,6 +211,7 @@ class SpendServiceTest {
         return cal.getTime();
     }
 
+    @Test
     void createStatisticByCategoryJsonListTest() {
         Date dateTo = new Date();
         CurrencyValues statisticCurrency = CurrencyValues.RUB;
