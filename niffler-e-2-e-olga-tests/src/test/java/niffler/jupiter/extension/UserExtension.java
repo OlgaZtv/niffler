@@ -1,6 +1,7 @@
 package niffler.jupiter.extension;
 
-import niffler.jupiter.user.User;
+
+import niffler.jupiter.annotation.User;
 import niffler.model.UserModel;
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;

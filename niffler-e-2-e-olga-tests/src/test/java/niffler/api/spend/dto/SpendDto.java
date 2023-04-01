@@ -4,8 +4,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import niffler.api.base.BaseDto;
-import niffler.model.Category;
-import niffler.model.Currency;
+import niffler.model.CategoryJson;
+import niffler.model.CurrencyValues;
 
 import java.util.Date;
 import java.util.UUID;
@@ -17,8 +17,8 @@ public final class SpendDto extends BaseDto {
 
     private UUID id;
     public Date spendDate;
-    private Category category;
-    private Currency currency;
+    private String category;
+    private CurrencyValues currency;
     private Double amount;
     private String description;
     private String username;

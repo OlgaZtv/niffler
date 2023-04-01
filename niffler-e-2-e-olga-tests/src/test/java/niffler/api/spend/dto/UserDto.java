@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import niffler.api.base.BaseDto;
-import niffler.model.Currency;
+import niffler.model.CurrencyValues;
 
 import java.util.UUID;
 
@@ -27,7 +27,7 @@ public final class UserDto extends BaseDto {
     @SerializedName("firstname")
     private String firstName;
     private String surname;
-    private Currency currency;
+    private CurrencyValues currencyValues;
     private byte[] photo;
 
     public void verifyAfterUpdate(UserDto otherUser) {
@@ -35,7 +35,7 @@ public final class UserDto extends BaseDto {
         assertEquals(otherUser.userName, userName);
         assertEquals(otherUser.firstName, firstName);
         assertEquals(otherUser.surname, surname);
-        assertEquals(otherUser.currency, currency);
+        assertEquals(otherUser.currencyValues, currencyValues);
         assertEquals(otherUser.photo, photo);
     }
 

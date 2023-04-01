@@ -29,9 +29,17 @@ dependencies {
     testImplementation 'org.hibernate:hibernate-core:6.1.7.Final'
     testImplementation 'org.springframework.security:spring-security-crypto:6.0.1'
     implementation("io.qameta.allure:allure-junit5:2.20.1") {
+        exclude group: "org.junit.jupiter-api"
         exclude group: "org.junit.platform"
         exclude group: "org.junit.jupiter"
     }
+    testImplementation 'io.qameta.allure:allure-jsonunit:2.21.0'
+    testImplementation 'io.qameta.allure:allure-attachments:2.21.0'
+    testImplementation 'com.github.javafaker:javafaker:1.0.2'
+    testImplementation 'p6spy:p6spy:3.9.1'
+    testImplementation 'com.github.vertical-blank:sql-formatter:2.0.3'
+    implementation group: 'net.javacrumbs.json-unit', name: 'json-unit-core', version: '2.36.0'
+
 }
 
 test {

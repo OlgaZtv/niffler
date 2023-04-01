@@ -1,7 +1,6 @@
 package niffler.jupiter.spend;
 
-import niffler.model.Category;
-import niffler.model.Currency;
+import niffler.model.CurrencyValues;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.lang.annotation.ElementType;
@@ -13,8 +12,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface WithSpend {
-    Category category() default Category.BOOKS;
-    Currency currency() default Currency.RUB;
+    String category() default "Книги";
+    CurrencyValues currency() default CurrencyValues.RUB;
     double amount();
     String description() default "Что-то купила";
     String username();

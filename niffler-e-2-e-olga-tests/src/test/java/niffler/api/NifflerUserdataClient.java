@@ -6,14 +6,20 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 
 public class NifflerUserdataClient {
     private Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(NifflerUserdataService.nifflerUserdataUri)
+            .baseUrl(NifflerUserdataApi.nifflerUserdataUri)
             .addConverterFactory(JacksonConverterFactory.create())
             .build();
 
-    private NifflerUserdataService nifflerUserdataService = retrofit.create(NifflerUserdataService.class);
+    private NifflerUserdataApi nifflerUserdataApi = retrofit.create(NifflerUserdataApi.class);
 
     public UserJson updateUserInfo(UserJson user) throws Exception {
-        return nifflerUserdataService.updateUserInfo(user).execute().body();
+        return nifflerUserdataApi.updateUserInfo(user).execute().body();
+    }
+
+    public UserJson getCurrentUser(String username) throws Exception {
+        return nifflerUserdataApi.currentUser(username)
+                .execute()
+                .body();
     }
 
 }
